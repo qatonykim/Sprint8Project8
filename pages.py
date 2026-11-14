@@ -12,16 +12,17 @@ class UrbanRoutesPage:
     PHONE_NUMBER_OPTION = (By.XPATH, "//div[text()='Phone number']")
     PHONE_NUMBER_FIELD = (By.XPATH, "//input[@id='phone']")
     NEXT_BUTTON_LOCATOR = (By.XPATH, "//button[text()='Next']")
-    TEXT_CODE_FIELD = (By.XPATH, "//label[text()='Enter the code']")
+    TEXT_CODE_FIELD = (By.XPATH, "//input[@id='code' and @placeholder='xxxx']")
     TEXT_CODE_CONFIRM_FIELD = (By.XPATH, "//button[text()='Confirm']")
     PHONE_NUMBER_DISPLAY_TEXT = (By.XPATH, "//div[@class='np-text']")
-    PAYMENT_METHOD_BUTTON = (By.XPATH, "//div[text()='Payment method']")
+    PAYMENT_METHOD_BUTTON = (By.XPATH, "//div[@class='pp-text']")
     ADD_CARD_BUTTON = (By.XPATH, "//div[text()='Add card']")
     CARD_NUMBER_FIELD = (By.XPATH, "//input[@placeholder='1234 0000 4321']")
     CARD_CODE_FIELD = (By.XPATH, "//input[@placeholder='12']")
     LINK_BUTTON = (By.XPATH, "//button[text()='Link']")
     COMMENT_LOCATOR = (By.XPATH, "//input[@placeholder='Get some whiskey']")
     BLANKET_AND_HANDKERCHIEFS_SLIDER = (By.XPATH, "//div[text()='Blanket and handkerchiefs']/following-sibling::div//span[@class='slider round']")
+    BLANKET_AND_HANDKERCHIEFS_CHECKBOX = (By.XPATH,"//div[text()='Blanket and handkerchiefs']/following-sibling::div//input[@type='checkbox']")
     ICE_CREAM_PLUS_BUTTON = (By.XPATH, "//div[@class='counter-plus' and text()='+']")
     ICE_CREAM_COUNTER_VALUE = (By.XPATH, "//div[text()='Ice cream']/following-sibling::div//div[@class='counter-value']")
     ORDER_BUTTON = (By.XPATH, "//button[@class='smart-button']")
@@ -45,7 +46,11 @@ class UrbanRoutesPage:
         wait = WebDriverWait(self.driver, 10)
         plan_btn = wait.until(EC.element_to_be_clickable(self.SUPPORTIVE_PLAN_CARD))
         plan_btn.click()
-    def click_phone_number_option(self, phone_number):
+    def get_supportive_plan_class(self):
+        wait = WebDriverWait(self.driver, 10)
+        card = wait.until(EC.presence_of_element_located(self.SUPPORTIVE_PLAN_CARD))
+        return card.get_attribute("class")
+    def click_phone_number_option(self):
         self.driver.find_element(*self.PHONE_NUMBER_OPTION).click()
     def write_phone_number(self, phone_number):
         self.driver.find_element(*self.PHONE_NUMBER_FIELD).send_keys(phone_number)
@@ -59,11 +64,15 @@ class UrbanRoutesPage:
         element = self.driver.find_element(*self.PHONE_NUMBER_DISPLAY_TEXT)
         return element.text
     def click_payment_method_button(self):
-        self.driver.find_element(*self.PAYMENT_METHOD_BUTTON).click()
+        wait = WebDriverWait(self.driver, 10)
+        btn = wait.until(EC.presence_of_element_located(self.PAYMENT_METHOD_BUTTON))
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", btn)
+        wait.until(EC.element_to_be_clickable(self.PAYMENT_METHOD_BUTTON)).click()
     def click_add_card_button(self):
         self.driver.find_element(*self.ADD_CARD_BUTTON).click()
-    def enter_card_details(self, card_number):
+    def enter_card_details(self, card_number, card_code):
         self.driver.find_element(*self.CARD_NUMBER_FIELD).send_keys(card_number)
+        self.driver.find_element(*self.CARD_CODE_FIELD).send_keys(card_code)
     def press_tab_on_card_code(self):
         self.driver.find_element(*self.CARD_CODE_FIELD).send_keys(Keys.TAB)
     def click_link_button(self):
@@ -71,7 +80,6 @@ class UrbanRoutesPage:
     def verify_link_button(self):
         wait = WebDriverWait(self.driver, 10)
         link_button = wait.until(EC.element_to_be_clickable(self.LINK_BUTTON))
-        link_button.click()
     def get_address_from(self):
         return self.driver.find_element(*self.FROM_LOCATOR).get_attribute('value')
     def get_address_to(self):
@@ -84,10 +92,12 @@ class UrbanRoutesPage:
         self.driver.execute_script("arguments[0].scrollIntoView(true);", slider)
         slider.click()
     def get_blanket_and_handkerchiefs_state(self):
-        checkbox = self.driver.find_element(*self.BLANKET_AND_HANDKERCHIEFS_SLIDER)  # or your checkbox/slider element
+        checkbox = self.driver.find_element(*self.BLANKET_AND_HANDKERCHIEFS_CHECKBOX)
         return checkbox.is_selected()
     def click_ice_cream_plus(self):
         self.driver.find_element(*self.ICE_CREAM_PLUS_BUTTON).click()
+    def get_ice_cream_counter_value(self):
+        return int(self.driver.find_element(*self.ICE_CREAM_COUNTER_VALUE).text)
     def write_message_driver(self, comment):
         self.driver.find_element(*self.COMMENT_LOCATOR).send_keys(comment)
     def click_order_button(self):

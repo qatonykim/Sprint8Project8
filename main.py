@@ -48,11 +48,12 @@ class TestUrbanRoutes:
         page.write_phone_number(data.PHONE_NUMBER)
         page.click_next_button()
         page.enter_text_verification_code(retrieve_phone_code(self.driver))
+        page.click_confirm_button()
         assert page.get_phone_number_text() == data.PHONE_NUMBER
 
     def test_fill_card(self):
         self.driver.get(data.URBAN_ROUTES_URL)
-        page = pages.UrbanRoutesPage
+        page = pages.UrbanRoutesPage(self.driver)
         page.write_address_from(data.ADDRESS_FROM)
         page.write_address_to(data.ADDRESS_TO)
         page.click_call_taxi_button()
@@ -81,6 +82,7 @@ class TestUrbanRoutes:
         page.write_address_from(data.ADDRESS_FROM)
         page.write_address_to(data.ADDRESS_TO)
         page.click_call_taxi_button()
+        page.click_supportive_plan()
         page.click_blanket_and_handkerchiefs()
         assert page.get_blanket_and_handkerchiefs_state() == True
 
@@ -89,10 +91,12 @@ class TestUrbanRoutes:
         page = pages.UrbanRoutesPage(self.driver)
         page.write_address_from(data.ADDRESS_FROM)
         page.write_address_to(data.ADDRESS_TO)
+        page.click_call_taxi_button()
+        page.click_supportive_plan()
 
         for _ in range(2):
             page.click_ice_cream_plus()
-        assert page.ICE_CREAM_COUNTER_VALUE() == 2
+        assert page.get_ice_cream_counter_value() == 2
 
     def test_car_search_model_appears(self):
         self.driver.get(data.URBAN_ROUTES_URL)
@@ -105,6 +109,7 @@ class TestUrbanRoutes:
         page.write_phone_number(data.PHONE_NUMBER)
         page.click_next_button()
         page.enter_text_verification_code(retrieve_phone_code(self.driver))
+        page.click_confirm_button()
         page.write_message_driver(data.MESSAGE_FOR_DRIVER)
         page.click_order_button()
         assert page.is_car_search_modal_displayed() is True
